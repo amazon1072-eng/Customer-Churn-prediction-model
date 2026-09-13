@@ -56,11 +56,6 @@
                         <label>Number of Referrals: <span id="ref-val" class="slider-val">0</span></label>
                         <input type="range" id="Number_of_Referrals" min="0" max="15" value="0" oninput="document.getElementById('ref-val').innerText = this.value">
                     </div>
-
-                    <div class="form-group">
-                        <label>Tenure in Months: <span id="tenure-val" class="slider-val">12</span></label>
-                        <input type="range" id="Tenure_in_Months" min="1" max="72" value="12" oninput="document.getElementById('tenure-val').innerText = this.value">
-                    </div>
                 </div>
 
                 <!-- Group 2: Services & Usage -->
@@ -164,7 +159,6 @@
                 "Married": document.getElementById("Married").value,
                 "Number_of_Dependents": parseInt(document.getElementById("Number_of_Dependents").value),
                 "Number_of_Referrals": parseInt(document.getElementById("Number_of_Referrals").value),
-                "Tenure_in_Months": parseInt(document.getElementById("Tenure_in_Months").value),
                 "Contract": document.getElementById("Contract").value,
                 "Internet_Service": document.getElementById("Internet_Service").value,
                 "Internet_Type": document.getElementById("Internet_Type").value,
@@ -183,19 +177,35 @@
                 });
 
                 const data = await response.json();
+                console.log("Backend Response:", data);
+
                 const resultBox = document.getElementById("result-box");
                 const resultText = document.getElementById("result-text");
 
                 resultBox.classList.remove("hidden", "churn");
 
-                if (data.prediction === "Yes") {
+                // Extract probability safely
+                let rawProb = data.probability ?? data.churn_probability ?? data.prob ?? data.confidence;
+                let probPercentage = "N/A";
+
+                if (rawProb !== undefined && rawProb !== null) {
+                    let num = parseFloat(rawProb);
+                    if (!isNaN(num)) {
+                        probPercentage = num <= 1 ? (num * 100).toFixed(2) : num.toFixed(2);
+                    }
+                }
+
+                let predLabel = data.prediction ?? data.churn ?? "No";
+
+                if (String(predLabel).toLowerCase().includes("yes") || predLabel === 1 || predLabel === "1") {
                     resultBox.classList.add("churn");
-                    resultText.innerHTML = `Prediction: <b>Yes ⚠️</b> | Probability: <b>${(data.probability * 100).toFixed(2)}%</b>`;
+                    resultText.innerHTML = `Prediction: <b>Yes ⚠️</b> ${probPercentage !== "N/A" ? `| Probability: <b>${probPercentage}%</b>` : ""}`;
                 } else {
-                    resultText.innerHTML = `Prediction: <b>No ✔️</b> | Probability: <b>${(data.probability * 100).toFixed(2)}%</b>`;
+                    resultText.innerHTML = `Prediction: <b>No ✔️</b> ${probPercentage !== "N/A" ? `| Probability: <b>${probPercentage}%</b>` : ""}`;
                 }
             } catch (error) {
-                alert("API Error! Backend payload format check karein.");
+                console.error("Fetch Error:", error);
+                alert("API Error! Check browser console.");
             } finally {
                 btn.innerText = "Predict Churn";
                 btn.disabled = false;
