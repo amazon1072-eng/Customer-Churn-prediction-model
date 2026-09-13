@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Complete Churn Predictor</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f7f6; }
+        .container { max-width: 600px; background: white; padding: 25px; border-radius: 8px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        label { font-weight: bold; font-size: 13px; display: block; margin-top: 8px; }
+        input, select { width: 100%; padding: 6px; box-sizing: border-box; }
+        button { width: 100%; background-color: #28a745; color: white; border: none; font-size: 16px; padding: 10px; margin-top: 20px; cursor: pointer; border-radius: 4px; }
+        button:hover { background-color: #218838; }
+        #result { margin-top: 20px; font-weight: bold; text-align: center; font-size: 18px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Full Customer Churn Predictor</h2>
+    <form id="churnForm">
+        <div class="grid">
+            <div>
+                <label>Gender:</label>
+                <select id="Gender"><option value="Male">Male</option><option value="Female">Female</option></select>
+
+                <label>Age:</label>
+                <input type="number" id="Age" value="30">
+
+                <label>Married:</label>
+                <select id="Married"><option value="No">No</option><option value="Yes">Yes</option></select>
+
+                <label>Dependents:</label>
+                <input type="number" id="Number_of_Dependents" value="0">
+
+                <label>Referrals:</label>
+                <input type="number" id="Number_of_Referrals" value="0">
+
+                <label>Tenure (Months):</label>
+                <input type="number" id="Tenure_in_Months" value="12">
+
+                <label>Offer:</label>
+                <select id="Offer">
+                    <option value="None">None</option>
+                    <option value="Offer A">Offer A</option>
+                    <option value="Offer B">Offer B</option>
+                    <option value="Offer C">Offer C</option>
+                </select>
+
+                <label>Phone Service:</label>
+                <select id="Phone_Service"><option value="Yes">Yes</option><option value="No">No</option></select>
+
+                <label>Multiple Lines:</label>
+                <select id="Multiple_Lines"><option value="No">No</option><option value="Yes">Yes</option></select>
+
+                <label>Internet Service:</label>
+                <select id="Internet_Service"><option value="Yes">Yes</option><option value="No">No</option></select>
+
+                <label>Internet Type:</label>
+                <select id="Internet_Type">
+                    <option value="Fiber Optic">Fiber Optic</option>
+                    <option value="DSL">DSL</option>
+                    <option value="Cable">Cable</option>
+                    <option value="None">None</option>
+                </select>
+
+                <label>Avg Monthly GB Download:</label>
+                <input type="number" id="Avg_Monthly_GB_Download" value="15">
+
+                <label>Avg Long Distance Charge ($):</label>
+                <input type="number" step="0.1" id="Avg_Monthly_Long_Distance_Charges" value="10.0">
+            </div>
+
+            <div>
+                <label>Online Security:</label>
+                <select id="Online_Security"><option value="No">No</option><option value="Yes">Yes</option></select>
+
+                <label>Online Backup:</label>
+                <select id="Online_Backup"><option value="No">No</option><option value="Yes">Yes</option></select>
+
+                <label>Device Protection Plan:</label>
+                <select id="Device_Protection_Plan"><option value="No">No</option><option value="Yes">Yes</option></select>
+
+                <label>Premium Tech Support:</label>
+                <select id="Premium_Tech_Support"><option value="No">No</option><option value="Yes">Yes</option></select>
+
+                <label>Streaming TV:</label>
+                <select id="Streaming_TV"><option value="No">No</option><option value="Yes">Yes</option></select>
+
+                <label>Streaming Movies:</label>
+                <select id="Streaming_Movies"><option value="No">No</option><option value="Yes">Yes</option></select>
+
+                <label>Streaming Music:</label>
+                <select id="Streaming_Music"><option value="No">No</option><option value="Yes">Yes</option></select>
+
+                <label>Unlimited Data:</label>
+                <select id="Unlimited_Data"><option value="Yes">Yes</option><option value="No">No</option></select>
+
+                <label>Contract:</label>
+                <select id="Contract">
+                    <option value="Month-to-Month">Month-to-Month</option>
+                    <option value="One Year">One Year</option>
+                    <option value="Two Year">Two Year</option>
+                </select>
+
+                <label>Paperless Billing:</label>
+                <select id="Paperless_Billing"><option value="Yes">Yes</option><option value="No">No</option></select>
+
+                <label>Payment Method:</label>
+                <select id="Payment_Method">
+                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="Electronic Check">Electronic Check</option>
+                    <option value="Mailed Check">Mailed Check</option>
+                </select>
+
+                <label>Monthly Charge ($):</label>
+                <input type="number" step="0.1" id="Monthly_Charge" value="65.0">
+
+                <label>Total Refunds ($):</label>
+                <input type="number" step="0.1" id="Total_Refunds" value="0.0">
+
+                <label>Total Extra Data Charges ($):</label>
+                <input type="number" step="0.1" id="Total_Extra_Data_Charges" value="0.0">
+            </div>
+        </div>
+
+        <button type="button" onclick="predictChurn()">Predict Churn</button>
+    </form>
+
+    <div id="result"></div>
+</div>
+
+<script>
+async function predictChurn() {
+    const payload = {
+        Gender: document.getElementById('Gender').value,
+        Age: parseInt(document.getElementById('Age').value),
+        Married: document.getElementById('Married').value,
+        Number_of_Dependents: parseInt(document.getElementById('Number_of_Dependents').value),
+        Number_of_Referrals: parseInt(document.getElementById('Number_of_Referrals').value),
+        Tenure_in_Months: parseInt(document.getElementById('Tenure_in_Months').value),
+        Offer: document.getElementById('Offer').value,
+        Phone_Service: document.getElementById('Phone_Service').value,
+        Avg_Monthly_GB_Download: parseInt(document.getElementById('Avg_Monthly_GB_Download').value),
+        Multiple_Lines: document.getElementById('Multiple_Lines').value,
+        Internet_Service: document.getElementById('Internet_Service').value,
+        Internet_Type: document.getElementById('Internet_Type').value,
+        Avg_Monthly_Long_Distance_Charges: parseFloat(document.getElementById('Avg_Monthly_Long_Distance_Charges').value),
+        Online_Security: document.getElementById('Online_Security').value,
+        Online_Backup: document.getElementById('Online_Backup').value,
+        Device_Protection_Plan: document.getElementById('Device_Protection_Plan').value,
+        Premium_Tech_Support: document.getElementById('Premium_Tech_Support').value,
+        Streaming_TV: document.getElementById('Streaming_TV').value,
+        Streaming_Movies: document.getElementById('Streaming_Movies').value,
+        Streaming_Music: document.getElementById('Streaming_Music').value,
+        Unlimited_Data: document.getElementById('Unlimited_Data').value,
+        Contract: document.getElementById('Contract').value,
+        Paperless_Billing: document.getElementById('Paperless_Billing').value,
+        Payment_Method: document.getElementById('Payment_Method').value,
+        Monthly_Charge: parseFloat(document.getElementById('Monthly_Charge').value),
+        Total_Refunds: parseFloat(document.getElementById('Total_Refunds').value),
+        Total_Extra_Data_Charges: parseFloat(document.getElementById('Total_Extra_Data_Charges').value)
+    };
+
+    try {
+        const response = await fetch('http://127.0.0.1:8000/predict', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        const churnColor = result.churn === 'Yes' ? 'red' : 'green';
+        
+        document.getElementById('result').innerHTML = 
+            'Prediction: <span style="color: ' + churnColor + ';">' + result.churn + '</span><br>' +
+            'Probability: ' + result.churn_probability;
+    } catch (error) {
+        document.getElementById('result').innerText = 'Error connecting to FastAPI backend!';
+    }
+}
+</script>
+
+</body>
+</html>
